@@ -81,7 +81,7 @@ function create() {
         this.physics.pause();
 
         // add text so the player knows its game over.
-        this.add.text(210, 250, 'Game Over /n Click to start New Game.', { fontSize: '15px', fill: '#000000'});
+        this.add.text(210, 250, 'Game Over \n Click to start New Game.', { fontSize: '15px', fill: '#000000'});
     })
     // create cursors object and save in the gameState object
     gameState.cursors = this.input.keyboard.createCursorKeys();
