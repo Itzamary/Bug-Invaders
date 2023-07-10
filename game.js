@@ -6,6 +6,8 @@ function preload() {
     // load all images for gameplay
     this.load.image('codey', './Images/codey.png');
     this.load.image('platform', './Images/platform.png');
+    this.load.image('bug1', './Images/bug_1.png');
+    this.load.image('bugPellet', './Images/bugPellet.png');
 };
 function create() {
 
@@ -13,7 +15,7 @@ function create() {
     if (gameState.active === false) {
         this.input.on('pointerup', () => {
           this.scene.restart();
-        })
+        });
     };
 
 
@@ -23,6 +25,18 @@ function create() {
 
     // create player
     gameState.player = this.physics.add.sprite(225, 450, 'codey').setScale(.5);
+
+    // create enemy key as group object
+    gameState.enemies = this.physics.add.group();
+    // create for loop to generate enemies
+    for (yValue = 1; yValue < 4; yValue++) {
+        for (xValue = 1; xValue < 9; xValue++) {
+            // create the enemies in 3 rows and 8 columns
+            // set scale to 60% and set gravity so the bugs arent pulled down.
+            gameState.enemies.create(50 * xValue, 50 * yValue, 'bug1').setScale(.6).setGravityY(-200);
+        }
+    };
+
 
     // create collider between player and platform.
     gameState.player.setCollideWorldBounds(true);
