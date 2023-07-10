@@ -10,13 +10,16 @@ function preload() {
     this.load.image('bugPellet', './Images/bugPellet.png');
 };
 function create() {
+    // gameState.active = true;
 
     // if gameState is not active than restart the scene on pointerup
-    if (gameState.active === false) {
-        this.input.on('pointerup', () => {
-          this.scene.restart();
-        });
-    };
+	this.input.on('pointerup', () => {
+		if (gameState.active === false) {
+            // set game active state to true before restarting.
+            gameState.active = true;
+			this.scene.restart();
+		}
+	});
 
 
     // create static platform
@@ -37,11 +40,49 @@ function create() {
         }
     };
 
+    // create enemy bullets group
+    const bugBullet = this.physics.add.group();
+    // function to generate multiple bug bullets.
+    function genBugBullets() {
+        // get random bug from the enemies group
+        const randomBug = Phaser.Utils.Array.GetRandom(gameState.enemies.getChildren());
+        // create bullet at the same location as the random bug
+        bugBullet.create(randomBug.x, randomBug.y, 'bugPellet');
+    };
+
+    // create loop for the function to continue running
+    gameState.bulletsLoop = this.time.addEvent({
+        delay: 300,
+        callback: genBugBullets,
+        callbackScope: this,
+        loop: true
+    });
+
 
     // create collider between player and platform.
     gameState.player.setCollideWorldBounds(true);
     this.physics.add.collider(gameState.player, platforms);
 
+    // collider between bullet and platform
+    this.physics.add.collider(bugBullet, platforms, (bullet) => {
+        // destroy bullet when it collides with the platform.
+        bullet.destroy();
+    });
+
+    // collider between bullet and player
+    this.physics.add.collider(bugBullet, gameState.player, () => {
+        // change game active to false
+        gameState.active = false;
+
+        // destory the bullets loop
+        gameState.bulletsLoop.destroy();
+
+        // pause the games physics.
+        this.physics.pause();
+
+        // add text so the player knows its game over.
+        this.add.text(210, 250, 'Game Over /n Click to start New Game.', { fontSize: '15px', fill: '#000000'});
+    })
     // create cursors object and save in the gameState object
     gameState.cursors = this.input.keyboard.createCursorKeys();
 };
