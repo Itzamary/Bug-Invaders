@@ -1,5 +1,4 @@
 const gameState = {
-    active: true
 }
 
 function preload() {
@@ -11,13 +10,12 @@ function preload() {
     this.load.image('bugRepellent', './Images/bugRepellent.png');
 };
 function create() {
-    // gameState.active = true;
+    gameState.active = true;
 
     // if gameState is not active than restart the scene on pointerup
 	this.input.on('pointerup', () => {
 		if (gameState.active === false) {
-            // set game active state to true before restarting.
-            gameState.active = true;
+            // restart scene.
 			this.scene.restart();
 		}
 	});
@@ -40,6 +38,9 @@ function create() {
             gameState.enemies.create(50 * xValue, 50 * yValue, 'bug1').setScale(.6).setGravityY(-200);
         }
     };
+
+    // display the number of enemy bugs in the screen. and save as key to to gameState object
+    gameState.scoreInfo = this.add.text(150, 482, `Bugs Left: ${gameState.enemies.getChildren().length}`, { fontSize: '15px', fill: '#000000'});
 
     // create enemy bullets group
     const bugBullet = this.physics.add.group();
@@ -85,7 +86,7 @@ function create() {
         this.physics.pause();
 
         // add text so the player knows its game over.
-        this.add.text(210, 250, 'Game Over \n Click to start New Game.', { fontSize: '15px', fill: '#000000'});
+        this.add.text(150, 250, 'Game Over \n Click to start New Game.', { fontSize: '15px', fill: '#000000'});
     });
 
     // create collider between player bullet and enemy
@@ -94,12 +95,13 @@ function create() {
         bug.destroy();
         // destroy the bullet
         bullet.destroy();
+
+        gameState.scoreInfo.text = ` Bugs Left: ${gameState.enemies.getChildren().length}`;
     });
 
     // create collider between player bullet and enemy bullet.
     this.physics.add.collider(gameState.playerBullet, bugBullet, (playerBullet, bugBullet) => {
         // destroy the bullet for each the playet and bug.
-        playerBullet.destroy();
         bugBullet.destroy();
     })
 
@@ -123,6 +125,22 @@ function update() {
         if (Phaser.Input.Keyboard.JustDown(gameState.cursors.space)) {
             // create bullets on the same location as the player. and change its gravity so it shoots upward
             gameState.playerBullet.create(gameState.player.x, gameState.player.y, 'bugRepellent').setGravityY(-400);
+        };
+
+        // create winning conditions if enemies is 0;
+        if (gameState.enemies.getChildren().length === 0) {
+
+            // stop the loop of the bug
+            gameState.bulletsLoop.destroy();
+
+            // change gameState active to fale
+            gameState.active = false;
+
+            // pause physics of the game
+            this.physics.pause(); 
+
+            // add text to screen to show the user they have won.
+            this.add.text(150, 250, 'You WON! \n Click to restart', { fontSize: '15px', fill: '#000000'})
         }
     }
 
